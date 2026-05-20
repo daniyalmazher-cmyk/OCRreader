@@ -30,6 +30,16 @@ from robocorp import log
 
 SUPPORTED_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".tif", ".tiff")
 
+# Used only to detect whether the primary OCR pass already captured a
+# plausible Saudi ID. Kept local (rather than imported from id_extraction)
+# to avoid a libraries.ocr → libraries.id_extraction dependency.
+_ID_DIGIT_NORMALIZE = str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789")
+_SAUDI_ID_PROBE = re.compile(r"(?<!\d)[12]\d{9}(?!\d)")
+
+
+def _has_saudi_id(text: str) -> bool:
+    return bool(_SAUDI_ID_PROBE.search((text or "").translate(_ID_DIGIT_NORMALIZE)))
+
 
 @dataclass
 class OCRResult:
@@ -73,6 +83,12 @@ class TesseractOCRClient:
         # Honor TESSDATA_PREFIX if set (set by devdata/env.json locally).
         self._tessdata = os.environ.get("TESSDATA_PREFIX")
 
+    def _config(self, psm: int) -> str:
+        parts = [f"--oem 3 --psm {psm}"]
+        if self._tessdata:
+            parts.append(f'--tessdata-dir "{self._tessdata}"')
+        return " ".join(parts)
+
     def read(self, image_path: Path) -> OCRResult:
         import pytesseract
 
@@ -80,15 +96,24 @@ class TesseractOCRClient:
         # where text is scattered with logos / borders / watermarks rather
         # than laid out in a uniform paragraph block.
         with Image.open(image_path) as img:
+            img = ImageOps.exif_transpose(img)
             processed = _preprocess(img)
-            config_parts = ["--oem 3", "--psm 11"]
-            if self._tessdata:
-                config_parts.append(f'--tessdata-dir "{self._tessdata}"')
             text = pytesseract.image_to_string(
-                processed,
-                lang=self.languages,
-                config=" ".join(config_parts),
+                processed, lang=self.languages, config=self._config(11),
             )
+
+            # Some cards (dense digit runs against busy backgrounds) lose the
+            # ID number under grayscale+autocontrast+PSM11. If the primary
+            # pass yielded no Saudi-ID-shaped digit run, take a second pass
+            # on the unmodified image with PSM 6 ("uniform block"), which
+            # recovers the digits in that case. Append rather than replace so
+            # the primary text still anchors the Arabic-name heuristic.
+            if not _has_saudi_id(text):
+                fallback = pytesseract.image_to_string(
+                    img, lang=self.languages, config=self._config(6),
+                )
+                if fallback:
+                    text = f"{text}\n{fallback}"
 
         return OCRResult(raw_text=text or "", engine=self.name)
 
