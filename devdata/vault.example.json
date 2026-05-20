@@ -1,0 +1,9 @@
+{
+  "gmail_credentials": {
+    "username": "your.demo.account@gmail.com",
+    "password": "your-gmail-app-password"
+  },
+  "anthropic_credentials": {
+    "api_key": "sk-ant-... (only required if OCR_ENGINE=claude)"
+  }
+}

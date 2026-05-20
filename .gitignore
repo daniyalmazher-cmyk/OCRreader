@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Bot runtime artifacts — regenerated on every run
+input/
+output/
+
+# Secrets — only the .example file is committed
+devdata/vault.json
+
+# Tesseract language data — downloaded by scripts/download_tessdata.py
+# (~27 MB of binary; keep out of git history. Uncomment the next line
+# if you'd rather commit them and have the repo be self-contained.)
+tessdata/*.traineddata
+
+# Robocorp / rcc local cache
+.robocorp_*
+
+# IDE / OS junk
+.idea/
+.vscode/
+.DS_Store
+*.swp
+
+# Streamlit secrets (in case anyone runs the old dashboard from here)
+.streamlit/secrets.toml

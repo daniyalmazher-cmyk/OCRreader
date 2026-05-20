@@ -1,0 +1,21 @@
+# Environment for the KSA Account Opening bot.
+# Tesseract is a system binary (from conda-forge), separate from pytesseract
+# (the Python wrapper). Arabic language data (ara.traineddata) is not bundled
+# with the conda-forge tesseract package — run scripts/download_tessdata.py
+# once before the first rcc run, or read tessdata/README.md for instructions.
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.12.13
+  - uv=0.10.9
+  - tesseract=5.5.0
+  - pip:
+    - rpaframework==32.0.0
+    - robocorp==3.1.1
+    - pandas==2.2.3
+    - pytesseract==0.3.13
+    - pillow==11.0.0          # conda-forge build includes raqm for Arabic shaping
+    - anthropic==0.39.0
+    - streamlit==1.40.2

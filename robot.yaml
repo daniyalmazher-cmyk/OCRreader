@@ -1,0 +1,19 @@
+# Robocorp robot manifest for the KSA Account Opening bot.
+# Run from this directory:   rcc run
+# Or from repo root:         rcc run -r account_opening_bot/robot.yaml
+
+tasks:
+  Run Task:
+    shell: python -m robocorp.tasks run tasks.py
+
+environmentConfigs:
+  - conda.yaml
+
+artifactsDir: output
+
+PATH:
+  - .
+PYTHONPATH:
+  - .
+ignoreFiles:
+  - .gitignore
