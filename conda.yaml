@@ -16,6 +16,6 @@ dependencies:
     - robocorp==3.1.1
     - pandas==2.2.3
     - pytesseract==0.3.13
-    - pillow==11.0.0          # conda-forge build includes raqm for Arabic shaping
+    - pillow==12.2.0          # conda-forge build includes raqm for Arabic shaping
     - anthropic==0.39.0
     - streamlit==1.40.2
