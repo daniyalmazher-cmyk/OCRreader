@@ -6,7 +6,7 @@ runs them all and produces an overall routing decision:
 * ``auto_approve`` — every rule passes
 * ``needs_review`` — at least one non-blocking rule failed
 * ``auto_reject`` — a blocking rule failed (bad ID format / failed checksum /
-  underage / expired ID / sanctions hit)
+  underage / sanctions hit)
 
 The checksum implementation follows the publicly documented Saudi National
 ID algorithm. Verify against a real card before the demo — if it disagrees,
@@ -100,19 +100,6 @@ def _parse_date(s: str | None) -> date | None:
         return None
 
 
-def check_not_expired(expiry: str | None, today: date | None = None) -> RuleResult:
-    today = today or date.today()
-    d = _parse_date(expiry)
-    if d is None:
-        return RuleResult(rule="not_expired", passed=False, severity="warning",
-                          detail="Expiry date not readable")
-    if d < today:
-        return RuleResult(rule="not_expired", passed=False, severity="blocking",
-                          detail=f"Document expired on {d.isoformat()}")
-    return RuleResult(rule="not_expired", passed=True, severity="blocking",
-                      detail=f"Valid until {d.isoformat()}")
-
-
 def check_age_18plus(dob: str | None, today: date | None = None) -> RuleResult:
     today = today or date.today()
     d = _parse_date(dob)
@@ -162,7 +149,6 @@ def evaluate(fields: dict, today: date | None = None) -> Decision:
     results = [
         check_id_format(fields.get("id_number")),
         check_id_checksum(fields.get("id_number")),
-        check_not_expired(fields.get("expiry_gregorian"), today=today),
         check_age_18plus(fields.get("dob_gregorian"), today=today),
         check_name_present(fields.get("name_ar"), fields.get("name_en")),
         check_sanctions(fields.get("name_ar"), fields.get("name_en")),
