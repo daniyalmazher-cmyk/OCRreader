@@ -19,12 +19,10 @@ from dataclasses import asdict, is_dataclass
 from pathlib import Path
 
 CSV_FIELDS = [
-    "app_id",
     "received_at",
     "processed_at",
     "source_email",
     "subject",
-    "document_path",
     "ocr_engine",
     "id_number",
     "id_type",
@@ -44,12 +42,10 @@ def _flatten_for_csv(record: dict) -> dict:
     decision = record.get("decision") or {}
     failed = [r["rule"] for r in decision.get("results", []) if not r.get("passed")]
     return {
-        "app_id":           record.get("app_id", ""),
         "received_at":      record.get("received_at", ""),
         "processed_at":     record.get("processed_at", ""),
         "source_email":     record.get("source_email", ""),
         "subject":          record.get("subject", ""),
-        "document_path":    record.get("document_path", ""),
         "ocr_engine":       record.get("ocr_engine", ""),
         "id_number":        fields.get("id_number") or "",
         "id_type":          fields.get("id_type") or "",

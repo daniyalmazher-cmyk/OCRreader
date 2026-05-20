@@ -167,7 +167,7 @@ class Process:
 
     def finish(self) -> None:
         """Persist all artifacts. Always runs (called from finally)."""
-        csv_path = self.output_dir / "applications.csv"
+        csv_path = self.output_dir / "report.csv"
         audit_path = self.output_dir / "audit_log.json"
 
         # Write per-application JSON details first so the CSV row never
